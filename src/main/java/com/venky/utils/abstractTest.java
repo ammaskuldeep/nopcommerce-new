@@ -1,24 +1,25 @@
-package com.venkyold.org;
+package com.venky.utils;
 
+import com.venky.utils.utils.BrowserFactory;
+import com.venky.utils.utils.DataSheetUtil;
+import com.venky.utils.utils.REPORTER;
+import com.venky.utils.utils.SystemLibrary;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.android.AndroidDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.server.SeleniumServer;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
-import com.venkyold.org.utils.DataSheetUtil;
-import com.venkyold.org.utils.REPORTER;
-import com.venkyold.org.utils.SystemLibrary;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,7 +32,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class abstractTest {
-    private static final Logger LOGGER  = Logger.getLogger(com.venkyold.org.abstractTest.class);
+//    public static final Logger LOGGER  = Logger.getLogger("abstractTest.class");
     public static final boolean DebugSwitch = false;
     public static SystemLibrary sl;
     public static WebDriver driver;
@@ -50,33 +51,16 @@ public class abstractTest {
 
     @BeforeClass
     public static void browserStart() throws Exception {
-       LOGGER.info("I am Starting the Reporter and driver");
         REPORTER.startReporter();
-//        PROPERTIES =
-        startRemoteWebBrowser(PROPERTIES.getProperty("BROWSER"));
-//		sheet = PROPERTIES.getProperty("SHEET");
-//        DesiredCapabilities caps = new DesiredCapabilities();
-//        caps.setCapability("browser", PROPERTIES.getProperty("BROWSER"));
-//        caps.setCapability("platform", PROPERTIES.getProperty("PLATFORM"));
-//        caps.setCapability("version", PROPERTIES.getProperty("VERSION"));
-//        driver = new RemoteWebDriver(new URL(PROPERTIES.getProperty("URL")),caps);
-//		SERVERURL = PROPERTIES.getProperty("SERVERURL");
-//		BROWSER = PROPERTIES.getProperty("BROWSER");
-//		selSer = new SeleniumServer();
-//		selSer.start();
-  //      REPORTER = new testReporter("ReportNew");
-    //    REPORTER.addNewIteration("new iteration");
-//        if (PROPERTIES.getProperty("BROWSER").equalsIgnoreCase("FIREFOX"))
-//            driver = new FirefoxDriver();
-//        else if (PROPERTIES.getProperty("BROWSER").equalsIgnoreCase("SAFARI"))
-//            driver = new SafariDriver();
-//        else if (PROPERTIES.getProperty("BROWSER").equalsIgnoreCase("CHROME"))
-//        {
-//
-//            driver = new ChromeDriver();
-//        }
-//        else if (PROPERTIES.getProperty("BROWSER").equalsIgnoreCase("IE"))
-//            driver = new InternetExplorerDriver();
+//        startRemoteWebBrowser(PROPERTIES.getProperty("BROWSER"));
+//        DesiredCapabilities capabilities= new DesiredCapabilities();
+//        capabilities.setCapability(CapabilityType.BROWSER_NAME,"firefox");
+        DesiredCapabilities caps = DesiredCapabilities.chrome();
+        caps.setCapability("platform", Platform.WINDOWS);
+        caps.setCapability("version", "31");
+//        caps.setCapability("browserName", "")
+//        2c259106-416c-4890-9e0a-9f09ccb96c74
+        driver = new RemoteWebDriver(new URL("http://cb_ram-core:2c259106-416c-4890-9e0a-9f09ccb96c74@ondemand.saucelabs.com:80/wd/hub"),caps);
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
         driver.get(PROPERTIES.getProperty("URL"));
     }
@@ -106,7 +90,7 @@ public class abstractTest {
         String file = "target\\qa-logs\\SampleTest_Results.XML";
 //        MailReporter mailSender=new MailReporter("jkumar12398@gmail.com","Selenium Webdriver Execution Report","Hi this is a test mail",file);
         // Disconnect the Server
-       LOGGER.info("I am Closing the Server............");
+//       LOGGER.info("I am Closing the Server............");
 //        try {
 //          //  Runtime.getRuntime().exec("taskkill /im firefox.exe");
 //        } catch (IOException e) {
@@ -126,7 +110,7 @@ public class abstractTest {
     //@AfterMethod
     public void afterMethod(ITestResult result) {
         sl.captureScreen(result.getMethod().getMethodName());
-       LOGGER.info("I am in after method");
+//       LOGGER.info("I am in after method");
         driver.quit();
         driver = null;
         selSer.stop();
@@ -150,25 +134,14 @@ public class abstractTest {
 
     protected static void startRemoteWebBrowser(String browser) throws MalformedURLException {
 
-//        this.browser = browser;
-        String runAt = null;
-        runAt = "local";
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("browserName", browser);   //
-
-       // capabilities.setCapability("version", Integer.parseInt(PROPERTIES.getProperty("VERSION")));
-        //capabilities.setCapability("platform", PROPERTIES.getProperty("PLATFORM"));
-        capabilities.setBrowserName(browser);
-//        runStandAloneServer();
-        URL url = new URL(PROPERTIES.getProperty("SERVERURL"));
-        driver = new RemoteWebDriver(url, capabilities);
-        sl = new SystemLibrary();
+        driver = BrowserFactory.getBrowser();
         driver.get(PROPERTIES.getProperty("URL"));
     }
 
+
     protected void startBrowser(String browser) {
 
-        this.browser = browser;
+        browser = browser;
         if (browser.equals("IEXPLORE")) {
             driver = new InternetExplorerDriver();
         } else if (browser.equals("IEXPLORE")) {
@@ -188,7 +161,7 @@ public class abstractTest {
             selSer = new SeleniumServer();
             selSer.start();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+        // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
